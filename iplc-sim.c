@@ -243,7 +243,8 @@ int iplc_sim_trap_address(unsigned int address)
     int i=0, hit=0;
     //need to get tag and index and check if each spot in cahce has matching tag or index
     int index = 0;
-    int tag = 0; 
+    int tag >> cache_blockoffsetbits;
+    tag >> cache_index; 
     
     for (i = 0; i < cache_assoc; i++) {
         if(cache[index].assoc[i].vb==1 && cache[index].assoc[i].tag==tag){
