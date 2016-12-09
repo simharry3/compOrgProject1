@@ -358,7 +358,7 @@ void iplc_sim_push_pipeline_stage()
                 ++correct_branch_predictions;
             }
             else{
-                pipeline_cycles += 9;
+                pipeline_cycles += 1;
             }
         }
     }
@@ -372,14 +372,13 @@ void iplc_sim_push_pipeline_stage()
             pipeline_cycles+=9;
         }
         if(pipeline[ALU].itype==RTYPE){
-            if(pipeline[MEM].stage.lw.dest_reg == pipeline[ALU].stage.rtype.reg1 || pipeline[MEM].stage.lw.dest_reg == pipeline[ALU].stage.rtype.reg2_or_constant){
-            //forwarding check?
-                pipeline_cycles-=9;
+            if((pipeline[MEM].stage.lw.dest_reg == pipeline[ALU].stage.rtype.reg1 || pipeline[MEM].stage.lw.dest_reg == pipeline[ALU].stage.rtype.reg2_or_constant) && !hit_check){
+               // pipeline_cycles-=9;
             }
         }
-        if(pipeline[WRITEBACK].itype==RTYPE && (pipeline[MEM].stage.lw.dest_reg == pipeline[WRITEBACK].stage.rtype.reg1 || pipeline[MEM].stage.lw.dest_reg == pipeline[WRITEBACK].stage.rtype.reg2_or_constant)){
-            pipeline_cycles-=9;
-        }
+         if(pipeline[WRITEBACK].itype==RTYPE && (pipeline[MEM].stage.lw.dest_reg == pipeline[WRITEBACK].stage.rtype.reg1 || pipeline[MEM].stage.lw.dest_reg == pipeline[WRITEBACK].stage.rtype.reg2_or_constant)){
+            // pipeline_cycles-=9;
+         }
     }
     
     /* 4. Check for SW mem access and data miss .. add delay cycles if needed */
