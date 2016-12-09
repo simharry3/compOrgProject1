@@ -351,8 +351,7 @@ void iplc_sim_push_pipeline_stage()
     
     /* 2. Check for BRANCH and correct/incorrect Branch Prediction */
     if (pipeline[DECODE].itype == BRANCH) {
-        int branch_taken = pipeline[DECODE].instruction_address  + 4 == pipeline[FETCH].instruction_address;
-        ++instruction_count;
+        int branch_taken = (pipeline[DECODE].instruction_address  + 4 != pipeline[FETCH].instruction_address);
         ++branch_count;
         if(branch_taken == branch_predict_taken){
             ++correct_branch_predictions;
@@ -366,12 +365,12 @@ void iplc_sim_push_pipeline_stage()
      *    add delay cycles if needed.
      */
     if (pipeline[MEM].itype == LW) {
-        if(!iplc_sim_trap_address(pipeline[MEM].stage.lw.data_address)){
-            pipeline_cycles += CACHE_MISS_DELAY;
+        int miss_check= iplc_sim_trap_address(pipeline[MEM].stage.lw.data_address);
+        if (!miss_check){
+            pipeline_cycles+=10;
         }
         int inserted_nop = 0;
-        ++instruction_count;
-        if(pipeline[MEM].stage.lw.base_reg == pipeline[ALU].stage.rtype.dest_reg){
+        if(pipeline[MEM].stage.lw.base_reg == pipeline[ALU].stage.rtype.dest_reg && !miss_check){
             inserted_nop = 1;
             pipeline_cycles += 10;
         }
