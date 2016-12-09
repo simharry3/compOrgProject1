@@ -366,6 +366,9 @@ void iplc_sim_push_pipeline_stage()
      *    add delay cycles if needed.
      */
     if (pipeline[MEM].itype == LW) {
+        if(!iplc_sim_trap_address(pipeline[MEM].stage.lw.data_address)){
+            pipeline_cycles += CACHE_MISS_DELAY;
+        }
         int inserted_nop = 0;
         ++instruction_count;
         if(pipeline[MEM].stage.lw.base_reg == pipeline[ALU].stage.rtype.dest_reg){
@@ -376,7 +379,7 @@ void iplc_sim_push_pipeline_stage()
     
     /* 4. Check for SW mem access and data miss .. add delay cycles if needed */
     if (pipeline[MEM].itype == SW) {
-        if(!iplc_sim_trap_address(pipeline[MEM].stage.sw.base_reg)){
+        if(!iplc_sim_trap_address(pipeline[MEM].stage.sw.data_address)){
             pipeline_cycles += CACHE_MISS_DELAY;
         }
     }
