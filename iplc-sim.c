@@ -351,13 +351,15 @@ void iplc_sim_push_pipeline_stage()
     
     /* 2. Check for BRANCH and correct/incorrect Branch Prediction */
     if (pipeline[DECODE].itype == BRANCH) {
-        int branch_taken = (pipeline[DECODE].instruction_address  + 4 != pipeline[FETCH].instruction_address);
         ++branch_count;
-        if(branch_taken == branch_predict_taken){
-            ++correct_branch_predictions;
-        }
-        else{
-            pipeline_cycles += 10;
+        if(pipeline[FETCH].instruction_address){
+            int branch_taken = (pipeline[DECODE].instruction_address  + 4 != pipeline[FETCH].instruction_address);
+            if(branch_taken == branch_predict_taken){
+                ++correct_branch_predictions;
+            }
+            else{
+                pipeline_cycles += 9;
+            }
         }
     }
     
@@ -365,21 +367,25 @@ void iplc_sim_push_pipeline_stage()
      *    add delay cycles if needed.
      */
     if (pipeline[MEM].itype == LW) {
-        int miss_check= iplc_sim_trap_address(pipeline[MEM].stage.lw.data_address);
-        if (!miss_check){
-            pipeline_cycles+=10;
+        int hit_check= iplc_sim_trap_address(pipeline[MEM].stage.lw.data_address);
+        if (!hit_check){
+            pipeline_cycles+=9;
         }
-        int inserted_nop = 0;
-        if(pipeline[MEM].stage.lw.base_reg == pipeline[ALU].stage.rtype.dest_reg && !miss_check){
-            inserted_nop = 1;
-            pipeline_cycles += 10;
+        if(pipeline[ALU].itype==RTYPE){
+            if(pipeline[MEM].stage.lw.dest_reg == pipeline[ALU].stage.rtype.reg1 || pipeline[MEM].stage.lw.dest_reg == pipeline[ALU].stage.rtype.reg2_or_constant){
+            //forwarding check?
+                pipeline_cycles-=9;
+            }
+        }
+        if(pipeline[WRITEBACK].itype==RTYPE && (pipeline[MEM].stage.lw.dest_reg == pipeline[WRITEBACK].stage.rtype.reg1 || pipeline[MEM].stage.lw.dest_reg == pipeline[WRITEBACK].stage.rtype.reg2_or_constant)){
+            pipeline_cycles-=9;
         }
     }
     
     /* 4. Check for SW mem access and data miss .. add delay cycles if needed */
     if (pipeline[MEM].itype == SW) {
         if(!iplc_sim_trap_address(pipeline[MEM].stage.sw.data_address)){
-            pipeline_cycles += CACHE_MISS_DELAY;
+            pipeline_cycles += 9;
         }
     }
     
