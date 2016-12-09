@@ -350,6 +350,15 @@ void iplc_sim_push_pipeline_stage()
     /* 2. Check for BRANCH and correct/incorrect Branch Prediction */
     if (pipeline[DECODE].itype == BRANCH) {
         int branch_taken = 0;
+
+        ++instruction_count;
+        ++branch_count;
+        if(branch_taken == branch_predict_taken){
+            ++correct_branch_predictions;
+        }
+        else{
+            ilpc_sim_process_pipeline_nop();
+        }
     }
     
     /* 3. Check for LW delays due to use in ALU stage and if data hit/miss
@@ -357,10 +366,17 @@ void iplc_sim_push_pipeline_stage()
      */
     if (pipeline[MEM].itype == LW) {
         int inserted_nop = 0;
+        ++instruction_count;
+        //TODO: check to see if ALU is using data
+
+        if(inserted_nop == 1){
+            ilpc_sim_process_pipeline_nop();
+        }
     }
     
-    /* 4. Check for SW mem acess and data miss .. add delay cycles if needed */
+    /* 4. Check for SW mem access and data miss .. add delay cycles if needed */
     if (pipeline[MEM].itype == SW) {
+        //TODO: Check for cache misses, if so delay by 10
     }
     
     /* 5. Increment pipe_cycles 1 cycle for normal processing */
