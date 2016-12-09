@@ -245,7 +245,7 @@ int iplc_sim_trap_address(unsigned int address)
     int tag = address >> cache_blockoffsetbits;
     tag = address >> cache_index; 
     int index = address << tag;
-    inded = address >> (cache_blockoffsetbits+tag);
+    index = address >> (cache_blockoffsetbits+tag);
     
     for (i = 0; i < cache_assoc; i++) {
         if(cache[index].assoc[i].vb==1 && cache[index].assoc[i].tag==tag){
