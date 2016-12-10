@@ -205,7 +205,7 @@ void iplc_sim_LRU_replace_on_miss(int index, int tag)
         for (i = 1; i < cache_assoc; i++) {
             cache[index].replacement[i-1] = cache[index].replacement[i];
         }
-        //Need to update tag to new tag, vb to 1, and replacement[] to ... 
+        //Need to update tag to new tag, vb to 1, and replacement[]
         cache[index].assoc[tag_updated].vb=1;
         cache[index].assoc[tag_updated].tag=tag;
         cache[index].replacement[cache_assoc-1]=tag_updated;
@@ -219,7 +219,7 @@ void iplc_sim_LRU_replace_on_miss(int index, int tag)
 void iplc_sim_LRU_update_on_hit(int index, int tag) //int tag used to be int assoc, changed to match replace_on_miss
 {
     int i=0, j=0;
-
+    //find where the hit is located
     for (j = 0; j < cache_assoc; j++)
         if (cache[index].replacement[j] == tag)
             break;
@@ -246,7 +246,7 @@ int iplc_sim_trap_address(unsigned int address)
     //need to get tag and index and check if each spot in cahce has matching tag or index
     tag = address >> (cache_blockoffsetbits + cache_index);
     index = (address >> cache_blockoffsetbits) % (1 << cache_index); 
-
+    
     for (i = 0; i < cache_assoc; i++) {
         if(cache[index].assoc[i].vb==1 && cache[index].assoc[i].tag==tag){
             //Have a hit so update 'hit' variable, incriment cache_hits, if associativity!=1 supported call LRU functions
